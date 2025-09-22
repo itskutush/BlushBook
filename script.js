@@ -43,8 +43,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 renderViews(entries);
             });
             
-            handleLoginSuccess();
-
         } else {
             console.log("User is signed out.");
         }
@@ -70,6 +68,8 @@ passwordForm.addEventListener('submit', (e) => {
     if (passwordInput === password) {
         loginPage.classList.add('hidden', 'opacity-0');
         passwordError.classList.add('hidden');
+        // The fix is here: Call the success handler directly on password match
+        handleLoginSuccess();
     } else {
         passwordError.classList.remove('hidden');
     }
@@ -77,9 +77,18 @@ passwordForm.addEventListener('submit', (e) => {
 
 function handleLoginSuccess() {
     bookContainer.classList.add('open');
+    const loadingEl = document.getElementById('loading');
+    const navBtnContainer = document.getElementById('nav-btn-container');
+
+    // Show the main content and buttons immediately
+    loadingEl.classList.add('hidden');
+    navBtnContainer.classList.remove('hidden');
+
     setTimeout(() => {
         bookCover.classList.add('hidden');
         mainDiaryContent.classList.remove('hidden');
+        // We also render the view with an empty array to show the "no entries" message
+        renderViews([]);
     }, 1000); // Wait for the flip animation to complete
 }
 
@@ -89,10 +98,8 @@ function renderViews(entries) {
     const loadingEl = document.getElementById('loading');
     const latestEntryContainer = document.getElementById('latest-entry-container');
     const writeEntryPage = document.getElementById('write-entry-page');
-    const navBtnContainer = document.getElementById('nav-btn-container');
 
     loadingEl.classList.add('hidden');
-    navBtnContainer.classList.remove('hidden');
     
     if (currentView === 'latest') {
         latestEntryContainer.classList.remove('hidden');
